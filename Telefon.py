@@ -49,7 +49,7 @@ while(True):
         print('Step1')
 
         # Play the sound by writing the audio data to the stream
-        while data != '':
+        while data != 'b''':
             stream.write(data)
             data = wf.readframes(chunk)
             print(data)
