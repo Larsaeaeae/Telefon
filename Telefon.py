@@ -16,6 +16,7 @@ filename = "Test.wav"
 WelcomeDone = False
 
 RecordingCounter = 0
+Debug = 0
 
 
 while(True):
@@ -48,9 +49,10 @@ while(True):
         print('Step1')
 
         # Play the sound by writing the audio data to the stream
-        while data != ' ':
+        while data != '':
             stream.write(data)
             data = wf.readframes(chunk)
+            Debug = Debug +1 
 
         print('Step2')
 
