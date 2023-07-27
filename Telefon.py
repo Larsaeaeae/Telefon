@@ -75,7 +75,7 @@ while(True):
         channels = 2
         fs = 44100  # Record at 44100 samples per second
         seconds = 3
-        filename = "Recording.wav"#RecordingCounter
+        filename = RecordingCounter+"Recording.wav"
 
         p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
