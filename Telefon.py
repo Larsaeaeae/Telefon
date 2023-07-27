@@ -19,7 +19,7 @@ AttemptRunning = False
 
 while(True):
 
-    if gpio.input(16):
+    if not gpio.input(16):
         continue
 
         while(True):
