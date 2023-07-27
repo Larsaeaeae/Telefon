@@ -55,10 +55,6 @@ while(True):
                 print('Abort recording')
                 break
 
-        if gpio.input(16):
-            print('Abort recording')
-            break
-
         # Close and terminate the stream
         stream.close()
         p.terminate()
@@ -92,13 +88,6 @@ while(True):
         while (not gpio.input(16)):
             data = stream.read(chunk)
             frames.append(data)
-            if gpio.input(16):
-                print('Abort recording')
-                break
-
-        if gpio.input(16):
-            print('Abort recording')
-            break
 
         # Stop and close the stream 
         stream.stop_stream()
