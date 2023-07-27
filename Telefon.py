@@ -2,25 +2,19 @@
 import pyaudio
 import wave
 import RPi.GPIO as gpio
+import time
+from datetime import datetime
 
 #Declare raspberry pi hardware pins
 gpio.setmode(gpio.BOARD)
 gpio.setup(16, gpio.IN)
 
-chunk = 1024  # Record in chunks of 1024 samples
-sample_format = pyaudio.paInt16  # 16 bits per sample
-channels = 2
-fs = 44100  # Record at 44100 samples per second
-seconds = 3
-filename = "Test.wav"
-
-RecordingCounter = 0
-AttemptRunning = False
-
 while(True):
 
             # Start playing intro sound if handset picked up
             while (not gpio.input(16)):
+
+                time.slep(2.0)
 
                 print('Playing Welcome Message')
 
@@ -66,14 +60,14 @@ while(True):
 
 
             # Start Recording user message
-                RecordingCounter = RecordingCounter + 1
+                now = datetime.now()
 
                 chunk = 1024  # Record in chunks of 1024 samples
                 sample_format = pyaudio.paInt16  # 16 bits per sample
                 channels = 2
                 fs = 44100  # Record at 44100 samples per second
                 seconds = 3
-                filename = "Recording" + str(RecordingCounter) + ".wav"
+                filename = "Recording" + str(now) + ".wav"
 
                 p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
