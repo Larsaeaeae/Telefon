@@ -18,13 +18,13 @@ while(True):
 
                 print('Playing Welcome Message')
 
-                filename = ()
+                filename = 'Welcome.wav'
 
                 # Set chunk size of 1024 samples per data frame
                 chunk = 1024  
 
                 # Open the sound file 
-                wf = wave.open('/home/telefon/Telefon/Welcome.wav', 'rb')
+                wf = wave.open(filename, 'rb')
 
                 # Create an interface to PortAudio
                 p = pyaudio.PyAudio()
