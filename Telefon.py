@@ -17,7 +17,7 @@ RecordingDone = False
 
 while(True):
 
-    if(gpio.input(16)):
+    if(not RecordingDone and gpio.input(16)):
 
         p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
@@ -56,6 +56,8 @@ while(True):
 
     if(RecordingDone and (gpio.input(16))):
 
+        print('Playing')
+
         filename = 'Test.wav'
 
         # Set chunk size of 1024 samples per data frame
@@ -85,3 +87,7 @@ while(True):
         # Close and terminate the stream
         stream.close()
         p.terminate()
+
+        RecordingDone = False
+
+        print('Done')
