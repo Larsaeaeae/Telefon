@@ -11,6 +11,8 @@ gpio.setup(16, gpio.IN)
 
 while(True):
 
+    print(now = datetime.now())
+
             # Start playing intro sound if handset picked up
             while (not gpio.input(16)):
 
