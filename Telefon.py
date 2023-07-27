@@ -3,6 +3,10 @@ import pyaudio
 import wave
 import RPi.GPIO as gpio
 
+#Pins deklarieren
+gpio.setmode(gpio.BOARD)
+gpio.set(16, gpio.IN)
+
 chunk = 1024  # Record in chunks of 1024 samples
 sample_format = pyaudio.paInt16  # 16 bits per sample
 channels = 2
