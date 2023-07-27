@@ -52,8 +52,7 @@ while(True):
         while data != '':
             stream.write(data)
             data = wf.readframes(chunk)
-            Debug = Debug +1
-            print(Debug)
+            print(data)
 
         print('Step2')
 
