@@ -19,11 +19,6 @@ AttemptRunning = False
 
 while(True):
 
-    if not gpio.input(16):
-        continue
-
-        while(True):
-
             # Start playing intro sound if handset picked up
             if (not gpio.input(16)):
 
