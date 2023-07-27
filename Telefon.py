@@ -3,7 +3,7 @@ import pyaudio
 import wave
 import RPi.GPIO as gpio
 
-#Declare raspberry pins
+#Declare raspberry pi hardware pins
 gpio.setmode(gpio.BOARD)
 gpio.setup(16, gpio.IN)
 
@@ -13,11 +13,61 @@ channels = 2
 fs = 44100  # Record at 44100 samples per second
 seconds = 3
 filename = "Test.wav"
-RecordingDone = False
+WelcomeDone = False
+
+RecordingCounter = 0
+
 
 while(True):
 
-    if(not RecordingDone and gpio.input(16)):
+    if (not WelcomeDone and gpio.input(16)):
+
+        print('Playing Welcome Message')
+
+        filename = 'Welcome.wav'
+
+        # Set chunk size of 1024 samples per data frame
+        chunk = 1024  
+
+        # Open the sound file 
+        wf = wave.open(filename, 'rb')
+
+        # Create an interface to PortAudio
+        p = pyaudio.PyAudio()
+
+        # Open a .Stream object to write the WAV file to
+        # 'output = True' indicates that the sound will be played rather than recorded
+        stream = p.open(format = p.get_format_from_width(wf.getsampwidth()),
+                        channels = wf.getnchannels(),
+                        rate = wf.getframerate(),
+                        output = True)
+
+        # Read data in chunks
+        data = wf.readframes(chunk)
+
+        # Play the sound by writing the audio data to the stream
+        while data != '':
+            stream.write(data)
+            data = wf.readframes(chunk)
+
+        # Close and terminate the stream
+        stream.close()
+        p.terminate()
+
+        WelcomeDone = True
+
+        print('Playing Welcome Message Completed')
+
+    if (WelcomeDone and gpio.input(16)):
+
+        RecordingCounter = RecordingCounter + 1
+
+        chunk = 1024  # Record in chunks of 1024 samples
+        sample_format = pyaudio.paInt16  # 16 bits per sample
+        channels = 2
+        fs = 44100  # Record at 44100 samples per second
+        seconds = 3
+        filename = RecordingCounter#"Recording.wav"
 
         p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
@@ -51,14 +101,13 @@ while(True):
         wf.setframerate(fs)
         wf.writeframes(b''.join(frames))
         wf.close()
+        
+    if (not gpio.input(16)):
+        WelcomeDone = False
 
-        RecordingDone = True
+        print('Playing Message')
 
-    if(RecordingDone and (gpio.input(16))):
-
-        print('Playing')
-
-        filename = 'Test.wav'
+        filename = RecordingCounter
 
         # Set chunk size of 1024 samples per data frame
         chunk = 1024  
@@ -88,6 +137,7 @@ while(True):
         stream.close()
         p.terminate()
 
-        RecordingDone = False
+        WelcomeDone = True
 
-        print('Done')
+        print('Playing Message Completed')
+        
