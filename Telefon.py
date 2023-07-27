@@ -15,12 +15,13 @@ seconds = 3
 filename = "Test.wav"
 
 RecordingCounter = 0
+AttemptRunning = False
 
 while(True):
 
 
     # Start playing intro sound if handset picked up
-    if (not WelcomeDone and not gpio.input(16)):
+    if (not gpio.input(16)):
 
         print('Playing Welcome Message')
 
@@ -50,11 +51,17 @@ while(True):
             stream.write(data)
             data = wf.readframes(chunk)
             print(data)
+            if gpio.input(16):
+                print('Abort recording')
+                break
+
+        if gpio.input(16):
+            print('Abort recording')
+            break
 
         # Close and terminate the stream
         stream.close()
         p.terminate()
-
 
         print('Playing Welcome Message Completed')
 
@@ -85,6 +92,13 @@ while(True):
         while (not gpio.input(16)):
             data = stream.read(chunk)
             frames.append(data)
+            if gpio.input(16):
+                print('Abort recording')
+                break
+
+        if gpio.input(16):
+            print('Abort recording')
+            break
 
         # Stop and close the stream 
         stream.stop_stream()
