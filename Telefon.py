@@ -14,7 +14,7 @@ while(True):
             # Start playing intro sound if handset picked up
             while (not gpio.input(16)):
 
-                time.slep(2.0)
+                time.sleep(1)
 
                 print('Playing Welcome Message')
 
