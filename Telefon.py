@@ -13,12 +13,13 @@ channels = 2
 fs = 44100  # Record at 44100 samples per second
 seconds = 3
 filename = "Test.wav"
-WelcomeDone = False
 
 RecordingCounter = 0
 
 while(True):
 
+
+    # Start playing intro sound if handset picked up
     if (not WelcomeDone and not gpio.input(16)):
 
         print('Playing Welcome Message')
@@ -44,28 +45,21 @@ while(True):
         # Read data in chunks
         data = wf.readframes(chunk)
 
-        print('Step1')
-
         # Play the sound by writing the audio data to the stream
         while (data != b''):
             stream.write(data)
             data = wf.readframes(chunk)
             print(data)
 
-        print('Step2')
-
         # Close and terminate the stream
         stream.close()
         p.terminate()
 
-        print('Step3')
-
-        WelcomeDone = True
 
         print('Playing Welcome Message Completed')
 
-    if (WelcomeDone):
 
+    # Start Recording user message
         RecordingCounter = RecordingCounter + 1
 
         chunk = 1024  # Record in chunks of 1024 samples
@@ -87,9 +81,8 @@ while(True):
 
         frames = []  # Initialize array to store frames
 
-        # Store data in chunks for 3 seconds
-        #for i in range(0, int(fs / chunk * seconds)):
-        while not gpio.input(16):
+        # Stop recording if handset on-hook
+        while (not gpio.input(16)):
             data = stream.read(chunk)
             frames.append(data)
 
@@ -108,5 +101,3 @@ while(True):
         wf.setframerate(fs)
         wf.writeframes(b''.join(frames))
         wf.close()
-
-        WelcomeDone = False
