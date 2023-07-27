@@ -11,73 +11,73 @@ fs = 44100  # Record at 44100 samples per second
 seconds = 3
 filename = "Test.wav"
 
-if(gpio.input(16)):
+while(True):
 
-    p = pyaudio.PyAudio()  # Create an interface to PortAudio
+    if(gpio.input(16)):
 
-    print('Recording')
+        p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
-    stream = p.open(format=sample_format,
-                    channels=channels,
-                    rate=fs,
-                    frames_per_buffer=chunk,
-                    input=True)
+        print('Recording')
 
-    frames = []  # Initialize array to store frames
+        stream = p.open(format=sample_format,
+                        channels=channels,
+                        rate=fs,
+                        frames_per_buffer=chunk,
+                        input=True)
 
-    # Store data in chunks for 3 seconds
-    for i in range(0, int(fs / chunk * seconds)):
-        data = stream.read(chunk)
-        frames.append(data)
+        frames = []  # Initialize array to store frames
 
-    # Stop and close the stream 
-    stream.stop_stream()
-    stream.close()
-    # Terminate the PortAudio interface
-    p.terminate()
+        # Store data in chunks for 3 seconds
+        for i in range(0, int(fs / chunk * seconds)):
+            data = stream.read(chunk)
+            frames.append(data)
 
-    print('Finished recording')
+        # Stop and close the stream 
+        stream.stop_stream()
+        stream.close()
+        # Terminate the PortAudio interface
+        p.terminate()
 
-    # Save the recorded data as a WAV file
-    wf = wave.open(filename, 'wb')
-    wf.setnchannels(channels)
-    wf.setsampwidth(p.get_sample_size(sample_format))
-    wf.setframerate(fs)
-    wf.writeframes(b''.join(frames))
-    wf.close()
+        print('Finished recording')
 
-    RecordingDone = True
+        # Save the recorded data as a WAV file
+        wf = wave.open(filename, 'wb')
+        wf.setnchannels(channels)
+        wf.setsampwidth(p.get_sample_size(sample_format))
+        wf.setframerate(fs)
+        wf.writeframes(b''.join(frames))
+        wf.close()
 
-if(RecordingDone and (gpio.input(16))):
+        RecordingDone = True
 
-    filename = 'Test.wav'
+    if(RecordingDone and (gpio.input(16))):
 
-    # Set chunk size of 1024 samples per data frame
-    chunk = 1024  
+        filename = 'Test.wav'
 
-    # Open the sound file 
-    wf = wave.open(filename, 'rb')
+        # Set chunk size of 1024 samples per data frame
+        chunk = 1024  
 
-    # Create an interface to PortAudio
-    p = pyaudio.PyAudio()
+        # Open the sound file 
+        wf = wave.open(filename, 'rb')
 
-    # Open a .Stream object to write the WAV file to
-    # 'output = True' indicates that the sound will be played rather than recorded
-    stream = p.open(format = p.get_format_from_width(wf.getsampwidth()),
-                    channels = wf.getnchannels(),
-                    rate = wf.getframerate(),
-                    output = True)
+        # Create an interface to PortAudio
+        p = pyaudio.PyAudio()
 
-    # Read data in chunks
-    data = wf.readframes(chunk)
+        # Open a .Stream object to write the WAV file to
+        # 'output = True' indicates that the sound will be played rather than recorded
+        stream = p.open(format = p.get_format_from_width(wf.getsampwidth()),
+                        channels = wf.getnchannels(),
+                        rate = wf.getframerate(),
+                        output = True)
 
-    # Play the sound by writing the audio data to the stream
-    while data != '':
-        stream.write(data)
+        # Read data in chunks
         data = wf.readframes(chunk)
 
-    # Close and terminate the stream
-    stream.close()
-    p.terminate()
+        # Play the sound by writing the audio data to the stream
+        while data != '':
+            stream.write(data)
+            data = wf.readframes(chunk)
 
-gpio.cleanup()
+        # Close and terminate the stream
+        stream.close()
+        p.terminate()
