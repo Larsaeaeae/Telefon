@@ -45,20 +45,22 @@ while(True):
         # Read data in chunks
         data = wf.readframes(chunk)
 
+        print('Step1')
+
         # Play the sound by writing the audio data to the stream
         while data != '':
             stream.write(data)
             data = wf.readframes(chunk)
 
+        print('Step2')
+
         # Close and terminate the stream
         stream.close()
         p.terminate()
 
-        print(WelcomeDone)
+        print('Step3')
 
         WelcomeDone = True
-
-        print(WelcomeDone)
 
         print('Playing Welcome Message Completed')
 
