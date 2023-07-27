@@ -1,9 +1,9 @@
-#Abhängigkeiten importieren
+#Import libraries
 import pyaudio
 import wave
 import RPi.GPIO as gpio
 
-#Pins deklarieren
+#Declare raspberry pins
 gpio.setmode(gpio.BOARD)
 gpio.setup(16, gpio.IN)
 
