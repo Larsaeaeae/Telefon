@@ -16,12 +16,10 @@ filename = "Test.wav"
 WelcomeDone = False
 
 RecordingCounter = 0
-Debug = 0
-
 
 while(True):
 
-    if (not WelcomeDone and gpio.input(16)):
+    if (not WelcomeDone and not gpio.input(16)):
 
         print('Playing Welcome Message')
 
@@ -66,7 +64,7 @@ while(True):
 
         print('Playing Welcome Message Completed')
 
-    if (WelcomeDone and gpio.input(16)):
+    if (WelcomeDone):
 
         RecordingCounter = RecordingCounter + 1
 
@@ -90,7 +88,8 @@ while(True):
         frames = []  # Initialize array to store frames
 
         # Store data in chunks for 3 seconds
-        for i in range(0, int(fs / chunk * seconds)):
+        #for i in range(0, int(fs / chunk * seconds)):
+        while not gpio.input(16):
             data = stream.read(chunk)
             frames.append(data)
 
