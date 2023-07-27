@@ -18,7 +18,7 @@ while(True):
 
                 print('Playing Welcome Message')
 
-                filename = '/home/telefon/Telefon/Welcome.wav'
+                filename = ('/home/telefon/Telefon/Welcome.wav')
 
                 # Set chunk size of 1024 samples per data frame
                 chunk = 1024  
