@@ -1,141 +1,82 @@
 #Abhängigkeiten importieren
 import pyaudio
-import numpy as np
+import wave
 import RPi.GPIO as gpio
-import time
 
-#Variablen definieren
-chunk=1024
-startsignal = True
-maxValue = 2**16
+chunk = 1024  # Record in chunks of 1024 samples
+sample_format = pyaudio.paInt16  # 16 bits per sample
+channels = 2
+fs = 44100  # Record at 44100 samples per second
+seconds = 3
+filename = "Test.wav"
 
-#Pins deklarieren
-gpio.setmode(gpio.BOARD)
-gpio.setup(11, gpio.OUT)
-gpio.setup(37, gpio.OUT)
-gpio.setup(36, gpio.OUT)
-gpio.setup(33, gpio.OUT)
+if(gpio.input(16)):
 
-def vorwaerts(zeit):
-    gpio.output(11, True)
-    gpio.output(37, True)
-    gpio.output(36, False)
-    gpio.output(33, False)
-    skip(zeit)
+    p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
-#Ersatzfunktion für sleep(), da sonst der Puffer von PyAudio überläuft
-def skip(seconds):
-    samples = int(seconds * 44100)
-    count = 0
-    while count < samples:
-        stream.read(chunk)
-        count += chunk
-        time.sleep(0.01)
+    print('Recording')
 
-#PyAudio Objekt erstellen
-p=pyaudio.PyAudio()
+    stream = p.open(format=sample_format,
+                    channels=channels,
+                    rate=fs,
+                    frames_per_buffer=chunk,
+                    input=True)
 
-#PyAudio-Stream öffnen, hier wird die Anzahl an Kanälen (Channels=2), die Abtastrate (rate=44100), Ein- oder Ausgang (input=True),
-#das Audiogerät (input_device_index=10), und die Anzahl an Frames im Buffer festegelegt (frames_per_buffer=1024)
+    frames = []  # Initialize array to store frames
 
-stream=p.open(format=pyaudio.paInt16, channels=2, rate=44100, input=True, input_device_index=10, frames_per_buffer=1024)
-skip(0.5)
-#solange ein gewisser Start-pegel nicht überschritten wird, warten wir
-while (startsignal):
-      #Mikrofonsignal einlesen
-      data = np.frombuffer(stream.read(1024, exception_on_overflow = False),dtype=np.int16)
-      #zwei-spaltiges Array data in die einzelnen Kanäle dataR und dataL aufteilen
-      dataR = data[0::2]
-      dataL = data[1::2]
-      #Peak im Array pro Kanal finden
-      peakL = np.abs(np.max(dataL)-np.min(dataL))/maxValue
-      peakR = np.abs(np.max(dataR)-np.min(dataR))/maxValue
-      #beide Peaks ausgeben
-      print("L:%00.02f R:%00.02f"%(peakL*100, peakR*100))
-      #wenn Signal laut genug, dann Startsignal auf False, damit losgefahren werden kann
-      if ((peakL*100 > 5 or peakR*100 > 5)):
-        startsignal=False
-        #Durchschnitt des Peaks der beiden Kanäle berechnen, um später die Lautstärke vergleichen zu können 
-        letzter_peak = (peakL*100+peakR*100)/2 
-        print("Start!")
-      else:
-        #Signal zu leise
-        print("noch kein Startsignal bekommen")
-      skip(0.2)
+    # Store data in chunks for 3 seconds
+    for i in range(0, int(fs / chunk * seconds)):
+        data = stream.read(chunk)
+        frames.append(data)
 
-#Schleife 250 Mal durchlaufen
-for i in range(250):
-    #festlegen, dass in diesem Schleifendurchlauf noch nicht gefahren wurde, um nicht in mehr als einen Case pro Schleifendurchlauf zu kommen. 
-    bereits_gefahren=False
-    #Mikrofonsignal einlesen
-    data = np.frombuffer(stream.read(1024, exception_on_overflow = False),dtype=np.int16)
-    #zwei-spaltiges Array data in die einzelnen Kanäle dataR und dataL aufteilen
-    dataR = data[0::2]
-    dataL = data[1::2]
-    #Peak im Array pro Kanal finden
-    peakL = np.abs(float(np.max(dataL))-float(np.min(dataL)))/maxValue
-    peakR = np.abs(float(np.max(dataR))-float(np.min(dataR)))/maxValue
-    #Pegeldifferenz zwischen links und rechts errechnen und ausgeben
-    offset = (peakL-peakR)*10
-    print("L:%00.02f R:%00.02f"%(peakL*100, peakR*100))
-    #Wenn die Differenz der Pegel zu klein ist und das Singal laut genug ist, fahren wir geradeaus
-    if (0.05 > offset and offset >-0.05 and ((peakL*100+peakR*100)/2) >2.8):
-       #Durchschnitt des aktuellen Peaks der beiden Kanäle berechnen, um die Lautstärke vergleichen zu können 
-       aktueller_peak = (peakL*100+peakR*100)/2 
-       #wenn der aktuelle Peak kleiner ist als der letzte Peak, dann 1,5 Sekunden drehen
-       if (aktueller_peak < letzter_peak):
-            #Differenz berechnen, um diese ausgeben zu können
-            differenz = letzter_peak-aktueller_peak
-            #für den nächsten Schleifendurchlauf den aktuelllen Peak als letzten Peak setzen
-            letzter_peak = aktueller_peak
-            print("drehen Differeznz zum letzten Peak"+str(differenz))
-            links(1.7)
-       print("vorwaerts(0.8) "+str(offset))
-       print(" ")
-       vorwaerts(1.1)
-       stop() 
-       bereits_gefahren = True
-       skip(0.1)
+    # Stop and close the stream 
+    stream.stop_stream()
+    stream.close()
+    # Terminate the PortAudio interface
+    p.terminate()
 
-    #wenn die Pegeldifferenz größer als 0,05 ist und wir in diesem Schleifendurchlauf noch nicht gefahren sind, 0,5 Sekunden nach links drehen, anschließend 1,1 Sekunden geradeaus fahren
-    if (offset>0.05 and not bereits_gefahren):
-        #für den nächsten Schleifendurchlauf den aktuelllen Peak als letzten Peak setzen
-        letzter_peak = (peakL*100+peakR*100)/2 
-        print("links(0.8) "+str(offset))
-        print(" ")
-        links(0.55)
-        #drehen anhalten, bevor wir beginnen geradeaus zu fahren
-        stop()
-        vorwaerts(1.1)
-        #fertig für diesen Schleifendurchlauf, also anhalten
-        stop() 
-        #Schleifenabbruchbedingung setzen
-        bereits_gefahren = True
-        skip(0.1)
+    print('Finished recording')
 
-    #wenn die Pegeldifferenz kleiner als -0,05 ist und wir in diesem Schleifendurchlauf noch nicht gefahren sind, 0,5 Sekunden nach rechts drehen, anschließend 1,1 Sekunden geradeaus fahren
-    if (offset<-0.05 and not bereits_gefahren):
-        #für den nächsten Schleifendurchlauf den aktuelllen Peak als letzten Peak setzen
-        letzter_peak = (peakL*100+peakR*100)/2
-        print("rechts(0.8) "+str(offset))
-        print(" ")
-        rechts(0.55)
-        #drehen anhalten, bevor wir beginnen geradeaus zu fahren
-        stop()
-        vorwaerts(1.1)
-        #fertig für diesen Schleifendurchlauf, also anhalten
-        stop()
-        #Schleifenabbruchbedingung setzen
-        bereits_gefahren = True
-        skip(0.1)
-    #wenn das Signal zu leise sind und wir noch nicht gefahren sind, ausgeben das wir warten und 0.25 Sekunden warten 
-    if (peakL+peakR/2 < 10 and not bereits_gefahren):
-        print("warte weil ruhig")
-        print(" ")
-        bereits_gefahren = True
-        skip(0.25)
-#250 Schleifendurchläufe erreicht, Auto anhalten, GPIOs wieder freigeben, Stream schließen und das PyAudio-Objekt terminieren
-stop()
+    # Save the recorded data as a WAV file
+    wf = wave.open(filename, 'wb')
+    wf.setnchannels(channels)
+    wf.setsampwidth(p.get_sample_size(sample_format))
+    wf.setframerate(fs)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+
+    RecordingDone = True
+
+if(RecordingDone and (gpio.input(16))):
+
+    filename = 'Test.wav'
+
+    # Set chunk size of 1024 samples per data frame
+    chunk = 1024  
+
+    # Open the sound file 
+    wf = wave.open(filename, 'rb')
+
+    # Create an interface to PortAudio
+    p = pyaudio.PyAudio()
+
+    # Open a .Stream object to write the WAV file to
+    # 'output = True' indicates that the sound will be played rather than recorded
+    stream = p.open(format = p.get_format_from_width(wf.getsampwidth()),
+                    channels = wf.getnchannels(),
+                    rate = wf.getframerate(),
+                    output = True)
+
+    # Read data in chunks
+    data = wf.readframes(chunk)
+
+    # Play the sound by writing the audio data to the stream
+    while data != '':
+        stream.write(data)
+        data = wf.readframes(chunk)
+
+    # Close and terminate the stream
+    stream.close()
+    p.terminate()
+
 gpio.cleanup()
-stream.close
-p.terminate
