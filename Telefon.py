@@ -67,12 +67,12 @@ while(True):
                 channels = 2
                 fs = 44100  # Record at 44100 samples per second
                 seconds = 3
-                filename = ("Recording" + str(CurrentDateTime.year)
-                                        + str(CurrentDateTime.month)
-                                        + str(CurrentDateTime.day)
-                                        + str(CurrentDateTime.hour)
-                                        + str(CurrentDateTime.minute)
-                                        + str(CurrentDateTime.second)
+                filename = ("Recording" + str(CurrentDateTime.year) + "_"
+                                        + str(CurrentDateTime.month) + "_"
+                                        + str(CurrentDateTime.day) + "_"
+                                        + str(CurrentDateTime.hour) + "_"
+                                        + str(CurrentDateTime.minute) + "_"
+                                        + str(CurrentDateTime.second) + "_"
                                         + str(CurrentDateTime.microsecond)
                                         + ".wav")
 
