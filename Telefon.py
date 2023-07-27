@@ -102,7 +102,7 @@ while(True):
         wf.writeframes(b''.join(frames))
         wf.close()
         
-    if (not gpio.input(16)):
+    if ((RecordingCounter > 0)and not gpio.input(16)):
         WelcomeDone = False
 
         print('Playing Message')
@@ -140,4 +140,3 @@ while(True):
         WelcomeDone = True
 
         print('Playing Message Completed')
-        
