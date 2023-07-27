@@ -10,9 +10,7 @@ gpio.setmode(gpio.BOARD)
 gpio.setup(16, gpio.IN)
 
 while(True):
-            now = datetime.now()
-            print(str(now))
-
+            
             # Start playing intro sound if handset picked up
             while (not gpio.input(16)):
 
@@ -62,14 +60,21 @@ while(True):
 
 
             # Start Recording user message
-                now = datetime.now()
+                CurrentDateTime = datetime.now()
 
                 chunk = 1024  # Record in chunks of 1024 samples
                 sample_format = pyaudio.paInt16  # 16 bits per sample
                 channels = 2
                 fs = 44100  # Record at 44100 samples per second
                 seconds = 3
-                filename = "Recording" + str(now) + ".wav"
+                filename = ("Recording" + str(CurrentDateTime.year)
+                                        + str(CurrentDateTime.month)
+                                        + str(CurrentDateTime.day)
+                                        + str(CurrentDateTime.hour)
+                                        + str(CurrentDateTime.minute)
+                                        + str(CurrentDateTime.second)
+                                        + str(CurrentDateTime.microsecond)
+                                        + ".wav")
 
                 p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
