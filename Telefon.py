@@ -3,7 +3,7 @@ import pyaudio
 import wave
 import RPi.GPIO as gpio
 import time
-from datetime import datetime
+from datetime import timedelta, datetime
 
 #Declare raspberry pi hardware pins
 gpio.setmode(gpio.BOARD)
@@ -88,10 +88,15 @@ while(True):
 
                 frames = []  # Initialize array to store frames
 
-                # Stop recording if handset on-hook
-                while (not gpio.input(16)):
+                # Stop recording if handset on-hook or 5 minutes elapsed
+                start_time = time.time()
+                while (not gpio.input(16) or elapsed_time >= 5):
                     data = stream.read(chunk)
                     frames.append(data)
+                    current_time = time.time()
+                    elapsed_time = current_time - start_time
+                    if (elapsed_time >= 5)
+                        print("Timeout von 5 Sekunden")
 
                 # Stop and close the stream 
                 stream.stop_stream()
