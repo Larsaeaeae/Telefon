@@ -95,7 +95,7 @@ while(True):
                     frames.append(data)
                     current_time = time.time()
                     elapsed_time = current_time - start_time
-                    if (elapsed_time >= 5)
+                    if (elapsed_time >= 5):
                         print("Timeout von 5 Sekunden")
 
                 # Stop and close the stream 
