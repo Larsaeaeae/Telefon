@@ -91,11 +91,12 @@ while(True):
                 # Stop recording if handset on-hook or 5 minutes elapsed
                 start_time = time.time()
                 while (not gpio.input(16)):
+                    current_time = time.time()
+                    elapsed_time = current_time - start_time
                     if(not (elapsed_time >= 300)):
                         data = stream.read(chunk)
                         frames.append(data)
-                        current_time = time.time()
-                        elapsed_time = current_time - start_time
+                        
                         if (elapsed_time >= 300):
                             print("Timeout von 300 Sekunden")
                             break
